@@ -10,6 +10,7 @@ export class PaymentMethodService {
   });
 
   create(createPaymentMethodDto: CreatePaymentMethodDto) {
+    this.stripe.paymentMethods.create();
     return 'This action adds a new paymentMethod';
   }
 
