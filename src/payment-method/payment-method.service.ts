@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
+import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentMethodService {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2023-08-16',
+  });
+
   create(createPaymentMethodDto: CreatePaymentMethodDto) {
     return 'This action adds a new paymentMethod';
   }
