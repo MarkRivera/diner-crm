@@ -18,10 +18,7 @@ export class CustomersService {
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto) {
-    const customer = this.customerRepository.create({
-      ...createCustomerDto,
-      orders: [],
-    });
+    const customer = this.customerRepository.create(createCustomerDto);
     return await this.customerRepository.save(customer);
   }
 
