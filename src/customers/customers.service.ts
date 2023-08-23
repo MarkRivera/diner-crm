@@ -1,27 +1,75 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Customer } from './entities/customer.entity';
+import { Repository } from 'typeorm';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class CustomersService {
-  create(createCustomerDto: CreateCustomerDto) {
-    console.log(createCustomerDto);
-    return 'This action adds a new customer';
+  constructor(
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
+  ) {}
+
+  async create(createCustomerDto: CreateCustomerDto) {
+    const customer = this.customerRepository.create(createCustomerDto);
+    return await this.customerRepository.save(customer);
   }
 
   findAll() {
-    return `This action returns all customers`;
+    // TODO: Only Managers can see all customers
+    return this.customerRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findOne(id: number) {
+    const customer = await this.customerRepository.findOne({ where: { id } });
+
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    return instanceToPlain(this.customerRepository.findOne({ where: { id } }));
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async update(
+    id: number,
+    updateCustomerDto: UpdateCustomerDto,
+  ): Promise<Customer> {
+    try {
+      const existingCustomer = await this.customerRepository.findOne({
+        where: { id },
+      });
+
+      if (!existingCustomer) {
+        throw new NotFoundException('Customer not found');
+      }
+
+      this.customerRepository.merge(existingCustomer, updateCustomerDto);
+
+      const updatedCustomer =
+        await this.customerRepository.save(existingCustomer);
+
+      return updatedCustomer;
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new BadRequestException('Emails must be unique');
+      }
+
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: number) {
+    const user = await this.customerRepository.findOne({ where: { id } });
+    if (!user)
+      throw new NotFoundException('User either does not exist or is deleted');
+
+    await this.customerRepository.softDelete(id);
   }
 }

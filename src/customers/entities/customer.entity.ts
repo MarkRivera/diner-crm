@@ -1,10 +1,12 @@
-import { PaymentMethod } from 'src/payment-method/entities/payment-method.entity';
+import { Exclude } from 'class-transformer';
+import { Order } from 'src/orders/entities/order.entity';
 import {
   Entity,
   BaseEntity,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity('customers')
@@ -15,18 +17,26 @@ export class Customer extends BaseEntity {
   id: number;
 
   @Column({
-    length: 100,
-    type: 'string',
+    length: 255,
+    type: 'varchar',
+    unique: true,
+    nullable: true,
   })
   email: string;
 
   @Column({
     length: 100,
-    type: 'string',
+    type: 'varchar',
+    default: 'guest',
   })
   name: string;
 
-  @OneToMany(() => PaymentMethod, (paymentMethod) => paymentMethod.customer)
-  paymentMethods: PaymentMethod[];
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
+
+  @DeleteDateColumn()
+  @Exclude()
+  delete_date: Date;
+
   // private table: any; // TODO: Create Table Entity
 }

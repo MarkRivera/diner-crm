@@ -11,6 +11,6 @@ export function typeOrmConfig(): TypeOrmModuleOptions {
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME || 'postgres',
     autoLoadEntities: true,
-    synchronize: process.env.NODE_ENV !== 'production',
+    synchronize: process.env.NODE_ENV === 'development',
   };
 }

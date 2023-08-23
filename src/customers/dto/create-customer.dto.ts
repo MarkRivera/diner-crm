@@ -1,24 +1,11 @@
-import {
-  IsArray,
-  IsEmail,
-  IsNotEmpty,
-  IsPhoneNumber,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreateCustomerDto {
   @IsEmail()
-  @IsNotEmpty()
+  @IsOptional()
   email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   name: string;
-
-  @IsArray()
-  tender: any[]; // TODO: Create Tender Class
-
-  @IsPhoneNumber()
-  @IsNotEmpty()
-  phone_number: string;
 }
